@@ -19,7 +19,7 @@ users = {
       {
          'id' : 'abc123', 
          'name': 'Mac',
-         'job': 'Bouncer',
+         'job': 'Professor',
       },
       {
          'id' : 'ppp222', 
@@ -28,8 +28,13 @@ users = {
       }, 
       {
          'id' : 'yat999', 
-         'name': 'Dee',
-         'job': 'Aspring actress',
+         'name': 'Asmi',
+         'job': 'Computer Scientist',
+      },
+      {
+         'id' : 'pat2020', 
+         'name': 'Asmi',
+         'job': 'Computer Scientist',
       },
       {
          'id' : 'zap555', 
@@ -39,7 +44,7 @@ users = {
    ]
 }
 
-@app.route('/users', methods=['GET', 'POST'])
+@app.route('/users', methods=['GET', 'POST', 'DELETE'])
 def get_users():
    if request.method == 'GET':
       search_username = request.args.get('name')
@@ -58,6 +63,16 @@ def get_users():
       # 200 is the default code for a normal response
       return resp
 
+   elif request.method == 'DELETE':
+      userToDel = request.get_json()
+      userID = userToDel['id']
+      for i in range(len(users['users_list'])):
+         if users['users_list'][i]['id'] == userID:
+            users['users_list'].pop(i)
+            break
+
+      return users  
+
 
 @app.route('/users/<id>')
 def get_user(id):
@@ -66,6 +81,17 @@ def get_user(id):
         if user['id'] == id:
            return user
       return ({})
+   return users
+
+@app.route('/users/<name>/<job>')
+def get_user_nameJob(name, job):
+   subdict = {'users_list' : []}
+   if name and job:
+      for user in users['users_list']:
+        if user['name'] == name and user['job'] == job:
+            subdict['users_list'].append(user)
+      return subdict
+      #return ({})
    return users
 
 
