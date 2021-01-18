@@ -1,7 +1,11 @@
 from flask import Flask
 from flask import request
 from flask import jsonify
+from random_username.generate import generate_username
+import random
+from flask_cors import CORS
 app = Flask(__name__)
+CORS(app) # <--- add this line
 
 @app.route('/')
 def hello_world():
@@ -33,7 +37,7 @@ users = {
       },
       {
          'id' : 'pat2020', 
-         'name': 'Asmi',
+         'name': 'Peepa',
          'job': 'Computer Scientist',
       },
       {
@@ -55,13 +59,16 @@ def get_users():
                subdict['users_list'].append(user)
          return subdict
       return users
+
    elif request.method == 'POST':
       userToAdd = request.get_json()
+      userToAdd['id'] = idGenerator()
       users['users_list'].append(userToAdd)
       resp = jsonify(success=True)
-      #resp.status_code = 200 #optionally, you can always set a response code. 
+      resp.status_code = 201 #optionally, you can always set a response code. 
       # 200 is the default code for a normal response
-      return resp
+      print(userToAdd)
+      return jsonify(userToAdd), 201
 
    elif request.method == 'DELETE':
       userToDel = request.get_json()
@@ -70,16 +77,17 @@ def get_users():
          if users['users_list'][i]['id'] == userID:
             users['users_list'].pop(i)
             break
-
       return users  
 
 
-@app.route('/users/<id>')
+@app.route('/users/<id>', methods = ['DELETE'])
 def get_user(id):
    if id :
       for user in users['users_list']:
-        if user['id'] == id:
-           return user
+        if user['id'] == id: # and request.method == 'DELETE':
+           users['users_list'].remove(user)
+           resp = jsonify(success=True)
+           return resp
       return ({})
    return users
 
@@ -93,6 +101,11 @@ def get_user_nameJob(name, job):
       return subdict
       #return ({})
    return users
+
+
+def idGenerator():
+   print(generate_username(1)[0], str(random.randint(1, 1001)))
+   return generate_username(1)[0]  + str(random.randint(1, 1001))
 
 
 
